@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz de Japonés</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Roboto, -apple-system, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #e9edf0 0%, #4f32b6 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      color: #fffdfdfd;
+      background-image: url("./images/wp1858921.jpg");
+      background-size: cover;
+      background-position: center;
+    }
+
+    
+    /* Contenedor estilo Glassmorphism (colores translúcidos) */
+    .glass-card {
+      background: rgba(6, 0, 63, 0.15);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(203, 218, 228, 0.25);
+      border-radius: 24px;
+      padding: 30px;
+      width: 100%;
+      max-width: 520px;
+      box-shadow: 0 8px 32px 0 rgba(248, 248, 247, 0.247);
+    }
+
+    .hidden { display: none !important; }
+
+    /* Encabezado */
+    .header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .btn-top {
+      background: rgba(255, 255, 255, 0.9);
+      color: #333;
+      border: none;
+      padding: 8px 18px;
+      border-radius: 20px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-top:hover {
+      background: #ffffff;
+    }
+
+    .timer {
+      font-size: 1.1rem;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+
+    h1, h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    /* Grid del Menú */
+    .unit-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .btn-unit {
+      background: rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: #fff;
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-unit:hover {
+      background: rgba(255, 255, 255, 0.35);
+      transform: translateY(-2px);
+    }
+
+    /* Área de Pregunta */
+    .question-box {
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 16px;
+      padding: 24px;
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 1.3rem;
+      font-weight: 500;
+      min-height: 110px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .input-answer {
+      width: 100%;
+      padding: 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      background: rgba(255, 255, 255, 0.2);
+      color: #fff;
+      font-size: 1.1rem;
+      text-align: center;
+      outline: none;
+      margin-bottom: 15px;
+    }
+
+    .input-answer::placeholder {
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .feedback {
+      text-align: center;
+      font-weight: bold;
+      font-size: 1.2rem;
+      min-height: 30px;
+      margin-bottom: 15px;
+    }
+
+    .feedback.correct { color: #4ade80; }
+    .feedback.incorrect { color: #f87171; }
+
+    /* Botón Siguiente / Comprobar */
+    .btn-primary {
+      width: 100%;
+      background: #fca5a5;
+      background: linear-gradient(135deg, #ffb347 0%, #ffcc33 100%);
+      color: #2d3748;
+      border: none;
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      transition: opacity 0.2s;
+    }
+
+    .btn-primary:hover {
+      opacity: 0.9;
+    }
+
+    .progress-text {
+      text-align: center;
+      margin-top: 15px;
+      font-size: 0.95rem;
+      opacity: 0.85;
+    }
+
+    /* Lista de Errores */
+    .error-list {
+      max-height: 250px;
+      overflow-y: auto;
+      margin-bottom: 20px;
+      padding-right: 5px;
+    }
+
+    .summary-item {
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 10px;
+      font-size: 0.95rem;
+      border-left: 4px solid #f87171;
+    }
+
+    .summary-item .q-title { font-weight: bold; margin-bottom: 4px; }
+    .summary-item .user-ans { color: #f87171; }
+    .summary-item .correct-ans { color: #4ade80; }
+  </style>
+</head>
+<body>
+  <audio id="bg-music" src="Cancion_1.mp3" loop></audio>
+
+  <div class="glass-card">
+    <h1 style="text-align: center; margin-bottom: 20px; font-size: 2rem;">Práctica Japonés</h1>
+
+   <div class="glass-card">
+    <!-- MENU PRINCIPAL -->
+    <div id="menu-view">
+      <h1>Seleccionar Unidad</h1>
+      <div class="unit-grid">
+        <button class="btn-unit" onclick="startQuiz('Capitulo 1')">Unidad 1</button>
+        <button class="btn-unit" onclick="startQuiz('Capitulo 2')">Unidad 2</button>
+        <button class="btn-unit" onclick="startQuiz('Capitulo 3')">Unidad 3</button>
+        <button class="btn-unit" onclick="startQuiz('Capitulo 4')">Unidad 4</button>
+        <button class="btn-unit" onclick="startQuiz('Capitulo 5')">Unidad 5</button>
+        <button class="btn-unit" onclick="startQuiz('Capitulo 6')">Unidad 6</button>
+        <button class="btn-unit" onclick="startQuiz('Capitulo 7')">Unidad 7</button>
+        <button class="btn-unit" onclick="startQuiz('Capitulo 8')">Unidad 8</button>
+        <button class="btn-unit" onclick="startQuiz('Capitulo 9')">Unidad 9</button>
+        <button class="btn-unit" onclick="startQuiz('Capitulo 10')">Unidad 10</button>
+      </div>
+    </div>
+
+    <!-- VISTA DEL QUIZ -->
+    <div id="quiz-view" class="hidden">
+      <div class="header-bar">
+        <button class="btn-top" onclick="showMenu()">Volver</button>
+        <div class="timer" id="timer">00:00</div>
+      </div>
+
+      <h2 id="chapter-title">Capitulo 1</h2>
+
+      <div class="question-box" id="question-text">
+        Cargando pregunta...
+      </div>
+
+      <input type="text" id="answer-input" class="input-answer" placeholder="Escribe tu respuesta..." autocomplete="off">
+
+      <div id="feedback" class="feedback"></div>
+
+      <button id="action-btn" class="btn-primary" onclick="handleAction()">Comprobar</button>
+
+      <div class="progress-text" id="progress-text">
+        Pregunta: 0 / 0
+      </div>
+    </div>
+
+    <!-- VISTA DE RESULTADOS -->
+    <div id="results-view" class="hidden">
+      <h2>¡Quiz Completado!</h2>
+      <p style="text-align: center; margin-bottom: 15px;" id="final-time">Tiempo total: 00:00</p>
+      
+      <div id="error-section">
+        <h3 style="margin-bottom: 10px;">Repaso de errores:</h3>
+        <div class="error-list" id="error-list"></div>
+      </div>
+
+      <button class="btn-primary" onclick="showMenu()">Volver al Menú Principal</button>
+    </div>
+
+  </div>
+
+  <script>
+    // BASE DE DATOS DE PREGUNTAS Y RESPUESTAS
+    const quizData = {
+      "Capitulo 1": [
+        { q: "Buenos dias", a: "おはようございます" },
+        { q: "Buenas tardes / Hola", a: "こんにちは" },
+        { q: "Buenas Noches", a: "こんばんは" },
+        { q: "Buenas noches ( antes de dormir)", a: "おやすみなさい" },
+        { q: "Adios", a: "さようなら" },
+        { q: "Gracias", a: "ありがとう" },
+        { q: "Muchas gracias", a: "ありがとうございます" },
+        { q: "Muchisimas gracias", a: "どうもありがとうございます" },
+        { q: "Disculpe", a: "すみません" },
+        { q: "Por favor", a: "おねがいします" },
+        { q: "Yo masculino formal", a: "わたし" },
+        { q: "Yo masculino neutro", a: "ぼく" },
+        { q: "Yo masculino informal", a: "おれ" },
+        { q: "Yo femenino neutro", a: "わたし" },
+        { q: "Yo femenino formal", a: "わたくし" },
+        { q: "Yo femenino informal", a: "あたし" },
+        { q: "Tu / Vos", a: "あなた" },
+        { q: "Tu / vos masculino (agresivo)", a: "おまえ" },
+        { q: "Tu / Vos femenino (agresivo)", a: "あんた" },
+        { q: "Tu / Vos de superiores (formal), de inferiores (informal)", a: "きみ" },
+        { q: "El", a: "かれ" },
+        { q: "Ella", a: "かのじょ" },
+        { q: "Nosotros/as (Yo + “x”)", a: "わたしたち" },
+        { q: "Ustedes (Yo + “x”)", a: "あなたたち" },
+        { q: "Ellos (El + “x”)", a: "かれたち" },
+        { q: "Ellas (Ella + “x”)", a: "かのじょたち" },
+        { q: "0", a: "れい / ゼロ" },
+        { q: "1", a: "いち" },
+        { q: "2", a: "に" },
+        { q: "3", a: "さん" },
+        { q: "4", a: "よん" },
+        { q: "5", a: "ご" },
+        { q: "6", a: "ろく" },
+        { q: "7", a: "なな" },
+        { q: "8", a: "はち" },
+        { q: "9", a: "きゅう" },
+        { q: "10", a: "じゅう" },
+        { q: "20", a: "にじゅう" },
+        { q: "30", a: "さんじゅう" },
+        { q: "40", a: "よんじゅう" },
+        { q: "50", a: "ごじゅう" },
+        { q: "60", a: "ろくじゅう" },
+        { q: "70", a: "ななじゅう" },
+        { q: "80", a: "はちじゅう" },
+        { q: "90", a: "きゅうじゅう" },
+        { q: "Aquella persona (formal)", a: "あのかた" },
+        { q: "Aquella persona (informal)", a: "あのひと" },
+        { q: "Sr, Sra, srta (formal)", a: "さん" },
+        { q: "Sufijo que se añade al nombre de los niños", a: "ちゃん" },
+        { q: "Sufijo que se emplea para indicar la nacionalidad de una persona", a: "じん" },
+        { q: "Argentino", a: "アルゼンチンじん" },
+        { q: "Argentina", a: "アルゼンチン" },
+        { q: "Maestro (no la profesion de uno mismo)", a: "せんせい" },
+        { q: "Profesor / Maestro (profesion de uno mismo)", a: "きょうし" },
+        { q: "Estudiante", a: "がくせい" },
+        { q: "Empleado de una empresa", a: "かいしゃいん" },
+        { q: "Empleado de la empresa “x”", a: "しゃいん" },
+        { q: "Empleado de un banco", a: "ぎんこういん" },
+        { q: "Medico", a: "いしゃ" },
+        { q: "Investigador", a: "けんきゅうしゃ" },
+        { q: "Universidad", a: "だいがく" },
+        { q: "Hospital", a: "びょういん" },
+        { q: "Quien (formal)", a: "どなた" },
+        { q: "Quien (informal)", a: "だれ" },
+        { q: "Edad (Nº + “x”)", a: "さい" },
+        { q: "¿Cuántos Años? (Formal)", a: "おいくつ" },
+        { q: "¿Cuántos años? (Informal)", a: "なんさい" },
+        { q: "Si", a: "はい" },
+        { q: "No", a: "いいえ" }
+      ],
+      "Capitulo 2": [
+        { q: "Esto, esta, este (objeto que tengo en la mano)", a: "これ" },
+        { q: "Eso, esa, ese (objeto que tiene otra persona)", a: "それ" },
+        { q: "Aquello, aquella, aquel (objeto lejano)", a: "あれ" },
+        { q: "Este, esta (sustantivo)", a: "この" },
+        { q: "Ese, esa (sustantivo)", a: "その" },
+        { q: "Aquel, aquella (sustantivo)", a: "あの" },
+        { q: "Libro", a: "ほん" },
+        { q: "Diccionario", a: "じしょ" },
+        { q: "Revista", a: "ざっし" },
+        { q: "Periodico", a: "しんぶん" },
+        { q: "Cuaderno", a: "ノート" },
+        { q: "Agenda", a: "てちょう" },
+        { q: "Tarjeta de presentacion / de negocio", a: "めいし" },
+        { q: "Carta / Tarjeta", a: "カード" },
+        { q: "Lapiz", a: "えんぴつ" },
+        { q: "Lapicera", a: "ボールペン / ペン" },
+        { q: "Portaminas", a: "シャープペンシル" },
+        { q: "Llave", a: "かぎ" },
+        { q: "Reloj", a: "とけい" },
+        { q: "Paraguas", a: "かさ" },
+        { q: "Maleta / Bolso", a: "かばん" },
+        { q: "CD", a: "CD" },
+        { q: "Television", a: "テレビ" },
+        { q: "Radio", a: "ラジオ" },
+        { q: "Camara", a: "カメラ" },
+        { q: "Computadora", a: "コンピューター" },
+        { q: "Auto", a: "くるま" },
+        { q: "Escritorio", a: "つくえ" },
+        { q: "Silla", a: "いす" },
+        { q: "Chocolate", a: "チョコレート" },
+        { q: "Café", a: "コーヒー" },
+        { q: "Suvenir de viaje", a: "おみやげ" },
+        { q: "Idioma ingles", a: "えいご" },
+        { q: "Idioma japones", a: "にほんご" },
+        { q: "Para referirse a cualquier idioma", a: "ご" },
+        { q: "Idioma español", a: "スペインご" },
+        { q: "¿Qué?", a: "なん" },
+        { q: "Si, eso", a: "そう" },
+        { q: "Eh, esto (se usa para expresar vacilacion al hablar con alguien)", a: "あのう" },
+        { q: "¿Cómo?", a: "えっ" },
+        { q: "Tome / aquí tiene (se usa para ofrecer o mostrar algo a alguien)", a: "どうぞ" },
+        { q: "Muchisimas Gracias", a: "どうもありがとうございます" },
+        { q: "¿ah, sí?", a: "そうですね" },
+        { q: "No es asi", a: "ちがいます" },
+        { q: "Ah (al tener conocimiento de algo)", a: "あ" },
+        { q: "Le agradezco de antemano su gentil apoyo (1º vez que ves a una persona)", a: "これからおせわになります" },
+        { q: "Yo tambien estoy encantado de conocerlo", a: "こちらこそどうぞよろしくおねがいします" }
+      ], // Puedes agregar los demás capítulos aquí
+      "Capitulo 3": 
+      [
+        { q: "Aquí, en este lugar", a: "ここ" },
+        { q: "Ahí, en ese lugar", a: "そこ" },
+        { q: "Alli, en aquel lugar", a: "あそこ" },
+        { q: "Donde, en que lugar", a: "どこ" },
+        { q: "Aquí, por aquí (forma cortez de ここ)", a: "こちら" },
+        { q: "Ahí, por ahí (forma cortez de そこ)", a: "そちら" },
+        { q: "Alli, por alli (forma cortez de あそこ)", a: "あちら" },
+        { q: "Donde, por donde (forma cortez de どこ)", a: "どちら" },
+        { q: "Aula", a: "きょうしつ" },
+        { q: "Comedor", a: "しょくどう" },
+        { q: "Oficina", a: "じむしょ" },
+        { q: "Sala de reuniones", a: "かいぎしつ" },
+        { q: "Recepcion", a: "うけつけ" },
+        { q: "Lobby", a: "ロビー" },
+        { q: "Habitacion", a: "へや" },
+        { q: "Baño", a: "トイレ / おてあらい" },
+        { q: "Escaleras", a: "かいだん" },
+        { q: "Ascensor", a: "エレベーター" },
+        { q: "Escalera mecanica", a: "エスカレーター" },
+        { q: "Maquina expendedora de bebidas", a: "じどうはんばいき" },
+        { q: "Telefono", a: "でんわ" },
+        { q: "Pais / su pais", a: "おくに" },
+        { q: "Compania / Empresa", a: "かいしゃ" },
+        { q: "Casa", a: "うち" },
+        { q: "Zapatos / calzado", a: "くつ" },
+        { q: "Corbata", a: "ネクタイ" },
+        { q: "Vino", a: "ワイン" },
+        { q: "Seccion de algo", a: "うりば" },
+        { q: "Subsuelo / sotano", a: "ちか" },
+        { q: "1º Piso", a: "いっかい" },
+        { q: "2º Piso", a: "にかい" },
+        { q: "3º Piso", a: "さんがい" },
+        { q: "4º Piso", a: "よんかい" },
+        { q: "5º Piso", a: "ごかい" },
+        { q: "6º Piso", a: "ろくかい" },
+        { q: "7º Piso", a: "ななかい" },
+        { q: "8º Piso", a: "はっかい" },
+        { q: "Para contar pisos", a: "かい / がい" },
+        { q: "¿Qué piso?", a: "なんがい" },
+        { q: "Para contar yenes", a: "えん" },
+        { q: "¿Cuánto cuesta?", a: "いくら" },
+        { q: "Cientos (100,200,400,500,700,900)", a: "ひゃく" },
+        { q: "300", a: "さんびゃく" },
+        { q: "600", a: "ろっぴゃく" },
+        { q: "800", a: "はっぴゃく" },
+        { q: "Miles (1000,2000,4000,　5000,6000,7000,9000)", a: "せん" },
+        { q: "3000", a: "さんぜん" },
+        { q: "8000", a: "はっせん" },
+        { q: "Decenas de miles", a: "まん" },
+        { q: "Cientos de miles", a: "じゅうまん" },
+        { q: "Millones", a: "ひゃくまん" },
+        { q: "Disculpe (para favores)", a: "すみません" },
+        { q: "Gracias (la forma mas sencilla)", a: "どうも" },
+        { q: "Bienvenido/a expresion que recibe un invitado o cliente en su llegada", a: "いらっしゃいませ" },
+        { q: "Por favor puede mostrarme “x” cosa", a: "をみせてください" },
+        { q: "Bueno / Entonces", a: "じゃ" },
+        { q: "Dame “x” por favor", a: "をください" },
+        { q: "Italia", a: "イタリア" },
+        { q: "Suiza", a: "スイス" },
+        { q: "Francia", a: "フランス" },
+        { q: "Yakarta", a: "ジャカルタ" },
+        { q: "Bangkok", a: "バンコク" },
+        { q: "Berlin", a: "ベルリン" },
+        { q: "Nombre de una estacion de tren en osaka", a: "しんおおさか" },
+        { q: "Alemania", a: "ドイツ" }
+      ],
+      "Capitulo 4": 
+      [
+        { q: "Verbo levantarse", a: "おきます" },
+        { q: "Verbo Acostarse / Dormir / Irse a la cama", a: "ねます" },
+        { q: "Verbo Trabajar", a: "はたらきます" },
+        { q: "Verbo Descansar", a: "やすみます" },
+        { q: "Verbo Estudiar", a: "べんきょうします" },
+        { q: "Verbo Terminar", a: "おわります" },
+        { q: "Tienda de departamento", a: "デパート" },
+        { q: "Banco", a: "ぎんこう" },
+        { q: "Oficina de correos", a: "ゆうびんきょく" },
+        { q: "Biblioteca", a: "としょかん" },
+        { q: "Museo de arte", a: "びじゅつかん" },
+        { q: "Ahora", a: "いま" },
+        { q: "Para contar las horas", a: "じ" },
+        { q: "Para contar los minutos (2,5,7,9)", a: "ふん" },
+        { q: "Para contar los minuto (1,3,4,6,8,10)", a: "ぷん" },
+        { q: "Y media", a: "はん" },
+        { q: "¿Qué hora es?", a: "なんじ" },
+        { q: "¿Qué minuto?", a: "なんぷん" },
+        { q: "De la mañana (AM)", a: "ごぜん" },
+        { q: "De la tarde (PM)", a: "ごご" },
+        { q: "La Mañana", a: "あさ" },
+        { q: "Medio dia // Dia", a: "ひる" },
+        { q: "Noche", a: "ばん // よる" },
+        { q: "Antes de ayer", a: "おととい" },
+        { q: "Ayer", a: "きのう" },
+        { q: "Hoy", a: "きょう" },
+        { q: "Mañana", a: "あした" },
+        { q: "Pasado mañana", a: "あさって" },
+        { q: "Esta mañana", a: "けさ" },
+        { q: "Esta noche", a: "こんばん" },
+        { q: "Descanso", a: "やすみ" },
+        { q: "Descanso de medio dia", a: "ひるやすみ" },
+        { q: "Examen", a: "しけん" },
+        { q: "Reunion", a: "かいぎ" },
+        { q: "Pelicula", a: "えいが" },
+        { q: "Todas las mañanas", a: "まいあさ" },
+        { q: "Todas las noches", a: "まいばん" },
+        { q: "Todos los dias", a: "まいにち" },
+        { q: "Lunes", a: "げつようび" },
+        { q: "Martes", a: "かようび" },
+        { q: "Miercoles", a: "すいようび" },
+        { q: "Jueves", a: "もくようび" },
+        { q: "Viernes", a: "きんようび" },
+        { q: "Sabado", a: "どようび" },
+        { q: "Domingo", a: "にちようび" },
+        { q: "¿Qué dia de la semana?", a: "なんようび" },
+        { q: "Debe ser muy duro // Cuanto lo siento", a: "たいへんですね" },
+        { q: "Numero", a: "ばんごう" },
+        { q: "¿Qué numero?", a: "なんばん" },
+        { q: "New York", a: "ニューヨーク" },
+        { q: "Pekin", a: "ペキン" },
+        { q: "Los Angeles", a: "ロサンゼルス" },
+        { q: "Londres", a: "ロンドン" },
+        { q: "La 1", a: "いちじ" },
+        { q: "Las 2", a: "にじ" },
+        { q: "Las 3", a: "さんじ" },
+        { q: "Las 4", a: "よじ" },
+        { q: "Las 5", a: "ごじ" },
+        { q: "Las 6", a: "ろくじ" },
+        { q: "Las 7", a: "しちじ" },
+        { q: "Las 8", a: "はちじ" },
+        { q: "Las 9", a: "くじ" },
+        { q: "Las 10", a: "じゅうじ" },
+        { q: "Las 11", a: "じゅういちじ" },
+        { q: "Las 12", a: "じゅうにじ" },
+        { q: "1 Minuto", a: "いっぷん" },
+        { q: "2 Minutos", a: "にふん" },
+        { q: "3 Minutos", a: "さんぷん" },
+        { q: "4 Minutos", a: "よんぷん" },
+        { q: "5 Minutos", a: "ごふん" },
+        { q: "6 Minutos", a: "ろっぷん" },
+        { q: "7 Minutos", a: "ななふん" },
+        { q: "8 Minutos", a: "はっぷん" },
+        { q: "9 Minutos", a: "きゅうふん" },
+        { q: "10 Minutos", a: "じっぷん" },
+        { q: "11 Minutos", a: "じゅういっぷん" },
+        { q: "12 Minutos", a: "じゅうにふん" }
+      ],
+      "Capitulo 5":
+       [
+        { q: "Verbo Ir", a: "いきます" },
+        { q: "Verbo Venir", a: "きます" },
+        { q: "Verbo Volver // Regresar", a: "かえります" },
+        { q: "Escuela", a: "がっこう" },
+        { q: "Supermercado", a: "スーパー" },
+        { q: "Estacion de tren", a: "えき" },
+        { q: "Avion", a: "ひこうき" },
+        { q: "Barco", a: "ふね" },
+        { q: "Tren", a: "でんしゃ" },
+        { q: "Subte", a: "ちかてつ" },
+        { q: "Tren bala", a: "しんかんせん" },
+        { q: "Colectivo", a: "バス" },
+        { q: "Taxi", a: "タクシー" },
+        { q: "Bicicleta", a: "じてんしゃ" },
+        { q: "Caminando", a: "あるいて" },
+        { q: "Persona // Gente", a: "ひと" },
+        { q: "Amigo", a: "ともだち" },
+        { q: "Novio", a: "かれ" },
+        { q: "Novia", a: "かのじょ" },
+        { q: "Familia", a: "かぞく" },
+        { q: "Solo // Sola", a: "ひとりで" },
+        { q: "La semana pasada", a: "せんしゅう" },
+        { q: "Esta semana", a: "こんしゅう" },
+        { q: "La semana que viene", a: "らいしゅう" },
+        { q: "El mes pasado", a: "せんげつ" },
+        { q: "Este mes", a: "こんげつ" },
+        { q: "El mes que viene", a: "らいげつ" },
+        { q: "El año pasado", a: "きょねん" },
+        { q: "Este año", a: "ことし" },
+        { q: "El año que viene", a: "らいねん" },
+        { q: "Para contar años // Decir un año", a: "ねん" },
+        { q: "¿Qué año?", a: "なんねん" },
+        { q: "Enero", a: "いちがつ" },
+        { q: "Febrero", a: "にがつ" },
+        { q: "Marzo", a: "さんがつ" },
+        { q: "Abril", a: "しがつ" },
+        { q: "Mayo", a: "ごがつ" },
+        { q: "Junio", a: "ろくがつ" },
+        { q: "Julio", a: "しちがつ" },
+        { q: "Agosto", a: "はちがつ" },
+        { q: "Septiembre", a: "くがつ" },
+        { q: "Octubre", a: "じゅうがつ" },
+        { q: "Noviembre", a: "じゅういちがつ" },
+        { q: "Diciembre", a: "じゅうにがつ" },
+        { q: "¿Qué mes?", a: "なんがつ" },
+        { q: "Dia 1", a: "ついたち" },
+        { q: "Dia 2", a: "ふつか" },
+        { q: "Dia 3", a: "みっか" },
+        { q: "Dia 4", a: "よっか" },
+        { q: "Dia 5", a: "いつか" },
+        { q: "Dia 6", a: "むいか" },
+        { q: "Dia 7", a: "なのか" },
+        { q: "Dia 8", a: "ようか" },
+        { q: "Dia 9", a: "ここのか" },
+        { q: "Dia 10", a: "とおか" },
+        { q: "Dia (11,12,13,15,16,17,　18,19,21,22,23,25,26,27,28,29,30,31)", a: "にち" },
+        { q: "Dia 14", a: "じゅうよっか" },
+        { q: "Dia 20", a: "はつか" },
+        { q: "Dia 24", a: "にじゅうよっか" },
+        { q: "¿Qué dia?", a: "なんにち" },
+        { q: "Cuando", a: "いつ" },
+        { q: "Cumpleaños", a: "たんじょうび" },
+        { q: "Estoy de acuerdo", a: "そうですね" },
+        { q: "De nada", a: "どういたしまして" },
+        { q: "Nº de Anden", a: "ばんせん" },
+        { q: "El proximo // siguiente", a: "つぎの" },
+        { q: "Tren local // Tren Normal", a: "ふつう" },
+        { q: "Tren Express", a: "きゅうこう" },
+        { q: "Tren Super Express", a: "とっきゅう" },
+        { q: "Nombre de ciudad cerca de osaka", a: "こうしえん" },
+        { q: "Castillo de Osaka", a: "おおさかじょう" }
+      ],
+      "Capitulo 6": 
+      [
+        { q: "Verbo comer", a: "たべます" },
+        { q: "Verbo tomar / Beber", a: "のみます" },
+        { q: "Verbo Fumar", a: "たばこをすいます" },
+        { q: "Verbo ver / mirar", a: "みます" },
+        { q: "Verbo escuchar / oir", a: "ききます" },
+        { q: "Verbo Leer", a: "よみます" },
+        { q: "Verbo Escribir / pintar / dibujar", a: "かきます" },
+        { q: "Verbo comprar", a: "かいます" },
+        { q: "Verbo sacar fotos", a: "しゃしんをとります" },
+        { q: "Verbo Hacer", a: "します" },
+        { q: "Verbo ver a alguien / encontrarse con alguien", a: "ひとにあいます" },
+        { q: "Comida en general / arroz cocido", a: "ごはん" },
+        { q: "Desayuno", a: "あさごはん" },
+        { q: "Almuerzo", a: "ひるごはん" },
+        { q: "Cena", a: "ばんごはん" },
+        { q: "Pan", a: "パン" },
+        { q: "Huevo", a: "たまご" },
+        { q: "Carne", a: "にく" },
+        { q: "Pescado / Pez", a: "さかな" },
+        { q: "Verduras", a: "やさい" },
+        { q: "Frutas", a: "くだもの // フルーツ" },
+        { q: "Agua", a: "みず" },
+        { q: "Té / Té verde", a: "おちゃ" },
+        { q: "Te negro / te rojo / te ingles", a: "こうちゃ" },
+        { q: "Leche", a: "ぎゅうにゅう // ミルク" },
+        { q: "Jugo", a: "ジュース" },
+        { q: "Cerveza", a: "ビール" },
+        { q: "Alcohol / Sake", a: "おさけ" },
+        { q: "Cigarrillos", a: "たばこ" },
+        { q: "Carta", a: "てがみ" },
+        { q: "Reporte", a: "レポート" },
+        { q: "Foto", a: "しゃしん" },
+        { q: "Video", a: "ビデオ" },
+        { q: "Tienda / Negocio", a: "みせ" },
+        { q: "Jardin", a: "にわ" },
+        { q: "Deberes / Tareas", a: "しゅくだいをします" },
+        { q: "Tenis", a: "テニス" },
+        { q: "Futbol", a: "サッカー" },
+        { q: "Visitar los cerezos", a: "おはなみをします" },
+        { q: "¿Qué?", a: "なに" },
+        { q: "Junto / Juntos / Juntas", a: "いっしょに" },
+        { q: "Un poco (referido a tiempo o cantidad)", a: "ちょっと" },
+        { q: "Siempre", a: "いつも" },
+        { q: "De vez en cuando / a veces", a: "ときどき" },
+        { q: "Y luego / y despues", a: "それから" },
+        { q: "Si (= a hai)", a: "ええ" },
+        { q: "Es una buena idea", a: "いいですね" },
+        { q: "Entendido / muy bien", a: "わかりました" },
+        { q: "¿Qué desea? / ¿Qué quiere?", a: "なんですか" },
+        { q: "Bueno, nos vemos mañana", a: "じゃまたあした" },
+        { q: "Mexico", a: "メキシコ" }
+      ],
+      "Capitulo 7": 
+      [
+        { q: "Verbo Cortar", a: "きります" },
+        { q: "Verbo Enviar", a: "おくります" },
+        { q: "Verbo Regalar // Dar", a: "あげます" },
+        { q: "Verbo Recibir", a: "もらいます" },
+        { q: "Verbo Prestar", a: "かします" },
+        { q: "Verbo Tomar prestado", a: "かります" },
+        { q: "Verbo Enseñar", a: "おしえます" },
+        { q: "Verbo Aprender", a: "ならいます" },
+        { q: "Verbo Hacer una llamada telefonica", a: "でんわをかけます" },
+        { q: "Mano", a: "て" },
+        { q: "Palillos", a: "はし" },
+        { q: "Cuchara", a: "スプーン" },
+        { q: "Cuchillo de mesa", a: "ナイフ" },
+        { q: "Tenedor", a: "フォーク" },
+        { q: "Tijeras", a: "はさみ" },
+        { q: "Computadora personal", a: "パソコン" },
+        { q: "Celular", a: "ケータイ" },
+        { q: "e-mail", a: "メール" },
+        { q: "Tarjeta de año nuevo", a: "ねんがじょう" },
+        { q: "Perforadora", a: "パンチ" },
+        { q: "Abrochadora", a: "ホッチキス" },
+        { q: "Cinta adhesiva", a: "セロテープ" },
+        { q: "Goma de borrar", a: "けしゴム" },
+        { q: "Papel", a: "かみ" },
+        { q: "Flor", a: "はな" },
+        { q: "Camisa", a: "シャツ" },
+        { q: "Regalo", a: "プレゼント" },
+        { q: "Equipaje / paquete", a: "にもつ" },
+        { q: "Dinero", a: "おかね" },
+        { q: "Boleto de transporte", a: "きっぷ" },
+        { q: "Navidad", a: "クリスマス" },
+        { q: "Mi padre", a: "ちち" },
+        { q: "Mi madre", a: "はは" },
+        { q: "Su padre", a: "おとうさん" },
+        { q: "Su madre", a: "おかあさん" },
+        { q: "YA", a: "もう" },
+        { q: "Todavia", a: "まだ" },
+        { q: "Desde ahora // Dentro de poco", a: "これから" },
+        { q: "Que bonito “x”", a: "すてきですね" },
+        { q: "Bienvenido (expresion de acogida al visitante)", a: "いらっしゃい" },
+        { q: "Pase por favor (para invitar a alguien a entrar)", a: "どうぞおあがりください" },
+        { q: "Con su permiso (pronunciada al entrar o salir de la casa de alguien)", a: "しつれいします" },
+        { q: "¿Le apetece “x”?", a: "はいかがですか" },
+        { q: "Muchas gracias (antes de comer o beber)", a: "いただきます" },
+        { q: "Muchas gracias (al terminar de comer o beber)", a: "ごちそうさま" },
+        { q: "España", a: "スペイン" }
+      ],
+      "Capitulo 8": [],
+      "Capitulo 9": [],
+      "Capitulo 10": []
+    };
+
+    // VARIABLES DE ESTADO
+    let currentQuestions = [];
+    let currentIndex = 0;
+    let errors = [];
+    let timerInterval = null;
+    let secondsElapsed = 0;
+    let isAnswerChecked = false;
+
+    // VISTAS
+    const menuView = document.getElementById('menu-view');
+    const quizView = document.getElementById('quiz-view');
+    const resultsView = document.getElementById('results-view');
+
+    // ELEMENTOS DEL DOM
+    const chapterTitle = document.getElementById('chapter-title');
+    const questionText = document.getElementById('question-text');
+    const answerInput = document.getElementById('answer-input');
+    const feedback = document.getElementById('feedback');
+    const actionBtn = document.getElementById('action-btn');
+    const progressText = document.getElementById('progress-text');
+    const timerDisplay = document.getElementById('timer');
+    const finalTime = document.getElementById('final-time');
+    const errorList = document.getElementById('error-list');
+
+    // ESCUCHAR TECLA ENTER
+    answerInput.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        handleAction();
+      }
+    });
+
+    function showMenu() {
+      clearInterval(timerInterval);
+      menuView.classList.remove('hidden');
+      quizView.classList.add('hidden');
+      resultsView.classList.add('hidden');
+    }
+
+    function startQuiz(chapter) {
+      const music = document.getElementById('bg-music');
+  music.volume = 0.005; 
+  music.play().catch(() => {});
+
+      const data = quizData[chapter];
+      if (!data || data.length === 0) {
+        alert("Aún no se han añadido preguntas para este capítulo.");
+        return;
+      }
+
+      // Mezclar preguntas aleatoriamente (Shuffle)
+      currentQuestions = [...data].sort(() => Math.random() - 0.5);
+      currentIndex = 0;
+      errors = [];
+      isAnswerChecked = false;
+
+      chapterTitle.textContent = chapter;
+      
+      menuView.classList.add('hidden');
+      resultsView.classList.add('hidden');
+      quizView.classList.remove('hidden');
+
+      startTimer();
+      showQuestion();
+    }
+
+    function startTimer() {
+      clearInterval(timerInterval);
+      secondsElapsed = 0;
+      timerDisplay.textContent = "00:00";
+      timerInterval = setInterval(() => {
+        secondsElapsed++;
+        const mins = String(Math.floor(secondsElapsed / 60)).padStart(2, '0');
+        const secs = String(secondsElapsed % 60).padStart(2, '0');
+        timerDisplay.textContent = `${mins}:${secs}`;
+      }, 1000);
+    }
+
+    function showQuestion() {
+      isAnswerChecked = false;
+      const q = currentQuestions[currentIndex];
+      questionText.textContent = q.q;
+      answerInput.value = '';
+      answerInput.focus();
+      feedback.textContent = '';
+      feedback.className = 'feedback';
+      actionBtn.textContent = 'Comprobar';
+      progressText.textContent = `Pregunta: ${currentIndex + 1} / ${currentQuestions.length}`;
+    }
+
+    function handleAction() {
+      if (!isAnswerChecked) {
+        checkAnswer();
+      } else {
+        nextQuestion();
+      }
+    }
+
+    function checkAnswer() {
+      const userAns = answerInput.value.trim().toLowerCase();
+      if (!userAns) return;
+
+      const currentQ = currentQuestions[currentIndex];
+      // Separa las respuestas posibles si están divididas por '/'
+      const validAnswers = currentQ.a.split('/').map(ans => ans.trim().toLowerCase());
+
+      isAnswerChecked = true;
+
+      if (validAnswers.includes(userAns)) {
+        feedback.textContent = '¡Correcto!';
+        feedback.className = 'feedback correct';
+      } else {
+        feedback.textContent = `¡Incorrecto! Era: ${currentQ.a}`;
+        feedback.className = 'feedback incorrect';
+        
+        errors.push({
+          question: currentQ.q,
+          userAnswer: userAns,
+          correctAnswer: currentQ.a
+        });
+      }
+
+      actionBtn.textContent = 'Siguiente Pregunta';
+    }
+
+    function nextQuestion() {
+      currentIndex++;
+      if (currentIndex < currentQuestions.length) {
+        showQuestion();
+      } else {
+        finishQuiz();
+      }
+    }
+
+    function finishQuiz() {
+      clearInterval(timerInterval);
+      quizView.classList.add('hidden');
+      resultsView.classList.remove('hidden');
+
+      finalTime.textContent = `Tiempo total: ${timerDisplay.textContent}`;
+      errorList.innerHTML = '';
+
+      if (errors.length === 0) {
+        errorList.innerHTML = '<p style="text-align: center; color: #4ade80;">¡Perfecto! No cometiste ningún error.</p>';
+      } else {
+        errors.forEach(err => {
+          const item = document.createElement('div');
+          item.className = 'summary-item';
+          item.innerHTML = `
+            <div class="q-title">Pregunta: ${err.question}</div>
+            <div class="user-ans">Tu respuesta: ${err.userAnswer}</div>
+            <div class="correct-ans">Respuesta correcta: ${err.correctAnswer}</div>
+          `;
+          errorList.appendChild(item);
+        });
+      }
+    }
+  </script>
+</body>
+</html>
