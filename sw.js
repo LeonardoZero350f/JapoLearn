@@ -3,7 +3,8 @@ const CACHE_NAME = 'japolearn-v1';
 const APP_FILES = [
   './',
   './index.html',
-  './manifest.webmanifest',,
+  './manifest.webmanifest',
+  './images/Logo.png',
   './images/1086429.jpg',
   './images/paisaje2.jpg',
   './images/wp1858921.jpg',
